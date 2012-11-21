@@ -3,7 +3,7 @@ set -eu
 
 # Configure HTTP proxy server
 
-install -o root -g root -m 600 /dev/stdin /tmp/kvm-hosting_nginx.conf <<'EOF'
+install -o root -g root -m 600 /dev/stdin /tmp/kvmhosting_nginx.conf <<'EOF'
 daemon off;
 
 user www-data;
@@ -55,4 +55,4 @@ EOF
 
 # Run HTTP proxy server
 
-exec nginx -c /tmp/kvm-hosting_nginx.conf
+exec nginx -c /tmp/kvmhosting_nginx.conf

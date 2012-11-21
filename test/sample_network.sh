@@ -50,7 +50,7 @@ iptables -t nat -A complex_DNAT -d 192.168.0.3 -p tcp --dport 25 -j DNAT --to-de
 
 # Configure DHCP server
 
-install -o root -g root -m 600 /dev/stdin /tmp/kvm-hosting_dhcpd.conf <<EOF
+install -o root -g root -m 600 /dev/stdin /tmp/kvmhosting_dhcpd.conf <<EOF
 option domain-name-servers $(
     sed -n 's/^nameserver \+\([0-9.]\+\)$/\1/p' /etc/resolv.conf | xargs | sed 's/ /, /g'
 );
@@ -82,4 +82,4 @@ EOF
 
 # Run DHCP server
 
-exec dhcpd -f -q -cf /tmp/kvm-hosting_dhcpd.conf tap_private tap_tcponly tap_httponly tap_complex
+exec dhcpd -f -q -cf /tmp/kvmhosting_dhcpd.conf tap_private tap_tcponly tap_httponly tap_complex

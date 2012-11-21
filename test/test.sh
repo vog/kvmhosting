@@ -19,11 +19,11 @@ trap 'rm -f tmp_output_5EZNkciv.sh' 0 INT QUIT
 for xslt in xslt_xsltproc xslt_xalan_cxx xslt_xalan_j xslt_saxon; do
     echo "Testing with $xslt ..."
     for name in invalid private tcponly httponly complex; do
-        $xslt ../kvm-hosting.xsl ../config_sample.xml guest $name >tmp_output_5EZNkciv.sh
+        $xslt ../kvmhosting.xsl ../config_sample.xml guest $name >tmp_output_5EZNkciv.sh
         diff -u sample_guest_$name.sh tmp_output_5EZNkciv.sh
     done
     for service in invalid http network update; do
-        $xslt ../kvm-hosting.xsl ../config_sample.xml $service '' >tmp_output_5EZNkciv.sh
+        $xslt ../kvmhosting.xsl ../config_sample.xml $service '' >tmp_output_5EZNkciv.sh
         diff -u sample_$service.sh tmp_output_5EZNkciv.sh
     done
 done

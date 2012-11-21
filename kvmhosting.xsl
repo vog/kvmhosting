@@ -58,7 +58,7 @@
   <xsl:template match="host" mode="http">
     <xsl:text># Configure HTTP proxy server&#xa;</xsl:text>
     <xsl:text>&#xa;</xsl:text>
-    <xsl:text>install -o root -g root -m 600 /dev/stdin /tmp/kvm-hosting_nginx.conf &lt;&lt;'EOF'&#xa;</xsl:text>
+    <xsl:text>install -o root -g root -m 600 /dev/stdin /tmp/kvmhosting_nginx.conf &lt;&lt;'EOF'&#xa;</xsl:text>
     <xsl:text>daemon off;&#xa;</xsl:text>
     <xsl:text>&#xa;</xsl:text>
     <xsl:text>user www-data;&#xa;</xsl:text>
@@ -87,7 +87,7 @@
     <xsl:text>&#xa;</xsl:text>
     <xsl:text># Run HTTP proxy server&#xa;</xsl:text>
     <xsl:text>&#xa;</xsl:text>
-    <xsl:text>exec nginx -c /tmp/kvm-hosting_nginx.conf&#xa;</xsl:text>
+    <xsl:text>exec nginx -c /tmp/kvmhosting_nginx.conf&#xa;</xsl:text>
   </xsl:template>
   <xsl:template match="guest[not(http)]" mode="http">
   </xsl:template>
@@ -138,7 +138,7 @@
     <xsl:text>&#xa;</xsl:text>
     <xsl:text># Configure DHCP server&#xa;</xsl:text>
     <xsl:text>&#xa;</xsl:text>
-    <xsl:text>install -o root -g root -m 600 /dev/stdin /tmp/kvm-hosting_dhcpd.conf &lt;&lt;EOF&#xa;</xsl:text>
+    <xsl:text>install -o root -g root -m 600 /dev/stdin /tmp/kvmhosting_dhcpd.conf &lt;&lt;EOF&#xa;</xsl:text>
     <xsl:text>option domain-name-servers $(&#xa;</xsl:text>
     <xsl:text>    sed -n 's/^nameserver \+\([0-9.]\+\)$/\1/p' /etc/resolv.conf | xargs | sed 's/ /, /g'&#xa;</xsl:text>
     <xsl:text>);&#xa;</xsl:text>
@@ -147,7 +147,7 @@
     <xsl:text>&#xa;</xsl:text>
     <xsl:text># Run DHCP server&#xa;</xsl:text>
     <xsl:text>&#xa;</xsl:text>
-    <xsl:text>exec dhcpd -f -q -cf /tmp/kvm-hosting_dhcpd.conf</xsl:text>
+    <xsl:text>exec dhcpd -f -q -cf /tmp/kvmhosting_dhcpd.conf</xsl:text>
     <xsl:apply-templates select="guest" mode="network-devicenames"/>
     <xsl:text>&#xa;</xsl:text>
   </xsl:template>
@@ -244,7 +244,7 @@
     <xsl:text>#!/bin/sh&#xa;</xsl:text>
     <xsl:text>exec xsltproc --param service "'</xsl:text>
     <xsl:value-of select="$service"/>
-    <xsl:text>'" /etc/kvm-hosting/kvm-hosting.xsl /etc/kvm-hosting/config.xml&#xa;</xsl:text>
+    <xsl:text>'" /etc/kvmhosting/kvmhosting.xsl /etc/kvmhosting/config.xml&#xa;</xsl:text>
     <xsl:text>EOF&#xa;</xsl:text>
   </xsl:template>
   <xsl:template match="guest" mode="update">
@@ -262,7 +262,7 @@
     <xsl:text>#!/bin/sh&#xa;</xsl:text>
     <xsl:text>exec xsltproc --param service "'guest'" --param name "'</xsl:text>
     <xsl:apply-templates select="@name"/>
-    <xsl:text>'" /etc/kvm-hosting/kvm-hosting.xsl /etc/kvm-hosting/config.xml&#xa;</xsl:text>
+    <xsl:text>'" /etc/kvmhosting/kvmhosting.xsl /etc/kvmhosting/config.xml&#xa;</xsl:text>
     <xsl:text>EOF&#xa;</xsl:text>
   </xsl:template>
 </xsl:stylesheet>
