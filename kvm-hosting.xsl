@@ -242,9 +242,9 @@
     <xsl:value-of select="$service"/>
     <xsl:text>/run &lt;&lt;'EOF'&#xa;</xsl:text>
     <xsl:text>#!/bin/sh&#xa;</xsl:text>
-    <xsl:text>exec /opt/kvm-hosting.sh /etc/kvm-hosting/config.xml </xsl:text>
+    <xsl:text>exec xsltproc --param service "'</xsl:text>
     <xsl:value-of select="$service"/>
-    <xsl:text>&#xa;</xsl:text>
+    <xsl:text>'" /etc/kvm-hosting/kvm-hosting.xsl /etc/kvm-hosting/config.xml&#xa;</xsl:text>
     <xsl:text>EOF&#xa;</xsl:text>
   </xsl:template>
   <xsl:template match="guest" mode="update">
@@ -260,9 +260,9 @@
     <xsl:apply-templates select="@name"/>
     <xsl:text>/run &lt;&lt;'EOF'&#xa;</xsl:text>
     <xsl:text>#!/bin/sh&#xa;</xsl:text>
-    <xsl:text>exec /opt/kvm-hosting.sh /etc/kvm-hosting/config.xml guest </xsl:text>
+    <xsl:text>exec xsltproc --param service "'guest'" --param name "'</xsl:text>
     <xsl:apply-templates select="@name"/>
-    <xsl:text>&#xa;</xsl:text>
+    <xsl:text>'" /etc/kvm-hosting/kvm-hosting.xsl /etc/kvm-hosting/config.xml&#xa;</xsl:text>
     <xsl:text>EOF&#xa;</xsl:text>
   </xsl:template>
 </xsl:stylesheet>
