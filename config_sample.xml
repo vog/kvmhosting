@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!-- vim: set expandtab softtabstop=2 autoindent: -->
+<host snat-ip="192.168.0.1" disk-prefix="/dev/vg0/">
+  <guest name="private" net="10.0.1." mem="128M">
+  </guest>
+  <guest name="tcponly" net="10.0.2." mem="256M">
+    <tcp ext-ip="192.168.0.2" ext-port="2022" int-port="22"/>
+  </guest>
+  <guest name="httponly" net="10.0.3." mem="512M">
+    <http domain="httponly.example.com"/>
+  </guest>
+  <guest name="complex" net="10.0.4." mem="1G">
+    <tcp ext-ip="192.168.0.2" ext-port="4022" int-port="22"/>
+    <tcp ext-ip="192.168.0.3" ext-port="25" int-port="25"/>
+    <http domain=".example.org"/>
+    <http domain="example.com"/>
+    <http domain="www.example.com"/>
+    <http domain="images.example.com"/>
+  </guest>
+</host>
