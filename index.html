@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>Kvmhosting – KVM-based Hosting</title>
+  </head>
+  <body>
+    <h1>Kvmhosting – KVM-based Hosting</h1>
+    <h2>Usage</h2>
+    <ul>
+      <li>
+        <p>Install requirements:</p>
+        <pre>aptitude -R install qemu-kvm daemontools-run isc-dhcp-server nginx-light xsltproc</pre>
+      </li>
+      <li>
+        <p>Compatibility fix for the daemontools-run Debian package:</p>
+        <pre>ln -fs /etc/service /service</pre>
+      </li>
+      <li>
+        <p>Disable rc.d services that will be handled by Daemontools:</p>
+        <pre>service isc-dhcp-server stop
+update-rc.d isc-dhcp-server disable
+
+service nginx stop
+update-rc.d nginx disable</pre>
+      </li>
+      <li>
+        <p>Clone Kvmhosting to proper place:</p>
+        <pre>git clone <a href="https://github.com/vog/kvmhosting">https://github.com/vog/kvmhosting.git</a> /etc/kvmhosting
+cd /etc/kvmhosting</pre>
+      </li>
+      <li>
+        <p>Create configuration:</p>
+        <pre>cp config_sample.xml config.xml
+$EDITOR config.xml</pre>
+      </li>
+      <li>
+        <p>Install Kvmhosting services:</p>
+        <pre>xsltproc --param service "'update'" kvmhosting.xsl config.xml | sh</pre>
+      </li>
+    </ul>
+    <h2>Run Test Suite</h2>
+    <ul>
+      <li>
+        <p>Install requirements:</p>
+        <pre>aptitude -R install xsltproc xalan libxalan2-java libsaxon-java</pre>
+      </li>
+      <li>
+        <p>Run test suite:</p>
+        <pre>cd test
+./test.sh</pre>
+      </li>
+    </ul>
+  </body>
+</html>
