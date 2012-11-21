@@ -169,7 +169,9 @@
     <xsl:apply-templates select="@name"/>
     <xsl:text>&#xa;</xsl:text>
   </xsl:template>
-  <xsl:template match="guest" mode="network-iptables">
+  <xsl:template match="guest[not(tcp)]" mode="network-iptables">
+  </xsl:template>
+  <xsl:template match="guest[tcp]" mode="network-iptables">
     <xsl:text>&#xa;</xsl:text>
     <xsl:text>iptables -t nat -N </xsl:text>
     <xsl:apply-templates select="@name"/>

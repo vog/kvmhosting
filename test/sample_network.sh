@@ -37,18 +37,10 @@ iptables -t nat -F
 iptables -t nat -X
 iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -j SNAT --to-source 192.168.0.1
 
-iptables -t nat -N private_DNAT
-iptables -t nat -A PREROUTING -j private_DNAT
-iptables -t nat -A OUTPUT -j private_DNAT
-
 iptables -t nat -N tcponly_DNAT
 iptables -t nat -A PREROUTING -j tcponly_DNAT
 iptables -t nat -A OUTPUT -j tcponly_DNAT
 iptables -t nat -A tcponly_DNAT -d 192.168.0.2 -p tcp --dport 2022 -j DNAT --to-destination 10.0.2.2:22
-
-iptables -t nat -N httponly_DNAT
-iptables -t nat -A PREROUTING -j httponly_DNAT
-iptables -t nat -A OUTPUT -j httponly_DNAT
 
 iptables -t nat -N complex_DNAT
 iptables -t nat -A PREROUTING -j complex_DNAT
