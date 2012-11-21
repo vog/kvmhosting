@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- vim: set expandtab softtabstop=2 autoindent: -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <xsl:param name="service"/>
+  <xsl:param name="action"/>
   <xsl:param name="name"/>
   <xsl:output method="text"/>
   <xsl:template match="/">
@@ -9,20 +9,20 @@
     <xsl:text>set -eu&#xa;</xsl:text>
     <xsl:text>&#xa;</xsl:text>
     <xsl:choose>
-      <xsl:when test="$service='guest'">
+      <xsl:when test="$action='guest'">
         <xsl:apply-templates select="host" mode="guest"/>
       </xsl:when>
-      <xsl:when test="$service='http'">
+      <xsl:when test="$action='http'">
         <xsl:apply-templates select="host" mode="http"/>
       </xsl:when>
-      <xsl:when test="$service='network'">
+      <xsl:when test="$action='network'">
         <xsl:apply-templates select="host" mode="network"/>
       </xsl:when>
-      <xsl:when test="$service='update'">
+      <xsl:when test="$action='update'">
         <xsl:apply-templates select="host" mode="update"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:text>echo 'Invalid service' >&amp;2&#xa;</xsl:text>
+        <xsl:text>echo 'Invalid action' >&amp;2&#xa;</xsl:text>
         <xsl:text>exit 1&#xa;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
@@ -223,27 +223,27 @@
     <xsl:text># Network&#xa;</xsl:text>
     <xsl:text>&#xa;</xsl:text>
     <xsl:call-template name="update-service">
-      <xsl:with-param name="service" select="'network'"/>
+      <xsl:with-param name="action" select="'network'"/>
     </xsl:call-template>
     <xsl:text>&#xa;</xsl:text>
     <xsl:text># HTTP&#xa;</xsl:text>
     <xsl:text>&#xa;</xsl:text>
     <xsl:call-template name="update-service">
-      <xsl:with-param name="service" select="'http'"/>
+      <xsl:with-param name="action" select="'http'"/>
     </xsl:call-template>
     <xsl:apply-templates select="guest" mode="update"/>
   </xsl:template>
   <xsl:template name="update-service">
-    <xsl:param name="service"/>
+    <xsl:param name="action"/>
     <xsl:text>install -o root -g root -m 700 -d /service/</xsl:text>
-    <xsl:value-of select="$service"/>
+    <xsl:value-of select="$action"/>
     <xsl:text>&#xa;</xsl:text>
     <xsl:text>install -o root -g root -m 700 /dev/stdin /service/</xsl:text>
-    <xsl:value-of select="$service"/>
+    <xsl:value-of select="$action"/>
     <xsl:text>/run &lt;&lt;'EOF'&#xa;</xsl:text>
     <xsl:text>#!/bin/sh&#xa;</xsl:text>
-    <xsl:text>exec xsltproc --param service "'</xsl:text>
-    <xsl:value-of select="$service"/>
+    <xsl:text>exec xsltproc --param action "'</xsl:text>
+    <xsl:value-of select="$action"/>
     <xsl:text>'" /etc/kvmhosting/kvmhosting.xsl /etc/kvmhosting/config.xml&#xa;</xsl:text>
     <xsl:text>EOF&#xa;</xsl:text>
   </xsl:template>
@@ -260,7 +260,7 @@
     <xsl:apply-templates select="@name"/>
     <xsl:text>/run &lt;&lt;'EOF'&#xa;</xsl:text>
     <xsl:text>#!/bin/sh&#xa;</xsl:text>
-    <xsl:text>exec xsltproc --param service "'guest'" --param name "'</xsl:text>
+    <xsl:text>exec xsltproc --param action "'guest'" --param name "'</xsl:text>
     <xsl:apply-templates select="@name"/>
     <xsl:text>'" /etc/kvmhosting/kvmhosting.xsl /etc/kvmhosting/config.xml&#xa;</xsl:text>
     <xsl:text>EOF&#xa;</xsl:text>
