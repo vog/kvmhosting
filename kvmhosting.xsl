@@ -6,14 +6,14 @@
   <xsl:output method="text" encoding="UTF-8"/>
   <xsl:template match="/">
     <xsl:variable name="output">
-      <xsl:apply-templates select="/" mode="output"/>
+      <xsl:apply-templates/>
     </xsl:variable>
     <xsl:for-each select="ext:node-set($output)/_">
       <xsl:value-of select="."/>
       <xsl:text>&#xa;</xsl:text>
     </xsl:for-each>
   </xsl:template>
-  <xsl:template match="host" mode="output">
+  <xsl:template match="host">
     <_>#!/bin/sh</_>
     <_>set -eu</_>
     <_/>
