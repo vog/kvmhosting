@@ -6,33 +6,35 @@
   <xsl:output method="text" encoding="UTF-8"/>
   <xsl:template match="/">
     <xsl:variable name="output">
-      <_>#!/bin/sh</_>
-      <_>set -eu</_>
-      <_/>
-      <xsl:choose>
-        <xsl:when test="$action='guest'">
-          <xsl:apply-templates select="host" mode="guest"/>
-        </xsl:when>
-        <xsl:when test="$action='http'">
-          <xsl:apply-templates select="host" mode="http"/>
-        </xsl:when>
-        <xsl:when test="$action='network'">
-          <xsl:apply-templates select="host" mode="network"/>
-        </xsl:when>
-        <xsl:when test="$action='update'">
-          <xsl:apply-templates select="host" mode="update"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <_>echo 'Invalid action' >&amp;2</_>
-          <_>exit 1</_>
-        </xsl:otherwise>
-      </xsl:choose>
+      <xsl:apply-templates select="/" mode="output"/>
     </xsl:variable>
-    <xsl:apply-templates select="ext:node-set($output)" mode="output"/>
+    <xsl:for-each select="ext:node-set($output)/_">
+      <xsl:value-of select="."/>
+      <xsl:text>&#xa;</xsl:text>
+    </xsl:for-each>
   </xsl:template>
-  <xsl:template match="_" mode="output">
-    <xsl:value-of select="."/>
-    <xsl:text>&#xa;</xsl:text>
+  <xsl:template match="/" mode="output">
+    <_>#!/bin/sh</_>
+    <_>set -eu</_>
+    <_/>
+    <xsl:choose>
+      <xsl:when test="$action='guest'">
+        <xsl:apply-templates select="host" mode="guest"/>
+      </xsl:when>
+      <xsl:when test="$action='http'">
+        <xsl:apply-templates select="host" mode="http"/>
+      </xsl:when>
+      <xsl:when test="$action='network'">
+        <xsl:apply-templates select="host" mode="network"/>
+      </xsl:when>
+      <xsl:when test="$action='update'">
+        <xsl:apply-templates select="host" mode="update"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <_>echo 'Invalid action' >&amp;2</_>
+        <_>exit 1</_>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   <xsl:template match="host" mode="guest">
     <xsl:if test="not(guest[@name=$name])">
