@@ -2,16 +2,16 @@
 set -eu
 
 xslt_xsltproc () {
-    xsltproc --param action "'$3'" --param name "'$4'" $1 $2
+    xsltproc --nonet --param action "'$3'" --param name "'$4'" $1 $2
 }
 xslt_xalan_cxx () {
-    xalan -xsl $1 -in $2 -param action "'$3'" -param name "'$4'"
+    xalan -validate -xsl $1 -in $2 -param action "'$3'" -param name "'$4'"
 }
 xslt_xalan_j () {
-    java -classpath /usr/share/java/xalan2.jar org.apache.xalan.xslt.Process -XSL $1 -IN $2 -PARAM action $3 -PARAM name "$4"
+    java -classpath /usr/share/java/xalan2.jar org.apache.xalan.xslt.Process -SECURE -XSL $1 -IN $2 -PARAM action $3 -PARAM name "$4"
 }
 xslt_saxon () {
-    java -classpath /usr/share/java/saxon.jar com.icl.saxon.StyleSheet $2 $1 "action=$3" "name=${4:-''}"
+    java -classpath /usr/share/java/saxon.jar com.icl.saxon.StyleSheet -w2 $2 $1 "action=$3" "name=${4:-''}"
 }
 
 trap 'rm -f tmp_output_5EZNkciv.sh' 0 INT QUIT
