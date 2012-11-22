@@ -31,7 +31,7 @@
     <xsl:apply-templates select="ext:node-set($output)" mode="output"/>
   </xsl:template>
   <xsl:template match="_" mode="output">
-    <xsl:value-of select="text()"/>
+    <xsl:value-of select="."/>
     <xsl:text>&#xa;</xsl:text>
   </xsl:template>
   <xsl:template match="host" mode="guest">
@@ -106,8 +106,7 @@
     <_>  }</_>
   </xsl:template>
   <xsl:template match="http" mode="http">
-    <xsl:text> </xsl:text>
-    <xsl:apply-templates select="@domain"/>
+    <_ xml:space="preserve"> <xsl:apply-templates select="@domain"/></_>
   </xsl:template>
   <xsl:template match="host" mode="network">
     <_># Configure TAP devices</_>
@@ -155,7 +154,14 @@
     <xsl:apply-templates select="tcp" mode="network-iptables"/>
   </xsl:template>
   <xsl:template match="tcp" mode="network-iptables">
-    <_>iptables -t nat -A <xsl:apply-templates select="../@name"/>_DNAT -d <xsl:apply-templates select="@ext-ip"/> -p tcp --dport <xsl:apply-templates select="@ext-port"/> -j DNAT --to-destination <xsl:apply-templates select="../@net"/>2:<xsl:apply-templates select="@int-port"/></_>
+    <_>
+      <_>iptables -t nat -A <xsl:apply-templates select="../@name"/>_DNAT</_>
+      <_> -d <xsl:apply-templates select="@ext-ip"/></_>
+      <_> -p tcp</_>
+      <_> --dport <xsl:apply-templates select="@ext-port"/></_>
+      <_> -j DNAT</_>
+      <_> --to-destination <xsl:apply-templates select="../@net"/>2:<xsl:apply-templates select="@int-port"/></_>
+    </_>
   </xsl:template>
   <xsl:template match="guest" mode="network-dhcp">
     <_/>
@@ -166,8 +172,7 @@
     <_>}</_>
   </xsl:template>
   <xsl:template match="guest" mode="network-devicenames">
-    <xsl:text> tap_</xsl:text>
-    <xsl:apply-templates select="@name"/>
+    <_ xml:space="preserve"> tap_<xsl:apply-templates select="@name"/></_>
   </xsl:template>
   <xsl:template match="host" mode="update">
     <_># Network</_>
