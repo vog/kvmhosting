@@ -20,6 +20,8 @@ trap 'rm -f tmp_output_5EZNkciv.sh' 0 INT QUIT
 
 for xslt in xslt_xsltproc xslt_xalan_cxx xslt_saxon xslt_xalan_j; do
     echo "Testing with $xslt ..."
+    $xslt tmp_output_5EZNkciv.sh ../config_sample.xml
+    diff -u sample_update.sh tmp_output_5EZNkciv.sh
     for action in invalid http network update; do
         $xslt tmp_output_5EZNkciv.sh ../config_sample.xml $action
         diff -u sample_$action.sh tmp_output_5EZNkciv.sh

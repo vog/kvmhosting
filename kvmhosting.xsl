@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- vim: set expandtab softtabstop=2 autoindent: -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <xsl:param name="action"/>
+  <xsl:param name="action" select="'update'"/>
   <xsl:param name="name"/>
   <xsl:output method="text"/>
   <xsl:template match="/">
