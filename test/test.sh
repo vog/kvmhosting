@@ -2,7 +2,7 @@
 set -eu
 
 xslt_xsltproc () {
-    xsltproc --nonet -o $1 --param action "'$3'" --param name "'$4'" $2
+    xsltproc --nonet -o $1 --stringparam action $3 --stringparam name "$4" $2
 }
 xslt_xalan_cxx () {
     xalan -validate -out $1 -in file://$(pwd)/$2 -param action "'$3'" -param name "'$4'"
