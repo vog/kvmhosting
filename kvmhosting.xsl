@@ -13,22 +13,22 @@
       <xsl:text>&#xa;</xsl:text>
     </xsl:for-each>
   </xsl:template>
-  <xsl:template match="/" mode="output">
+  <xsl:template match="host" mode="output">
     <_>#!/bin/sh</_>
     <_>set -eu</_>
     <_/>
     <xsl:choose>
       <xsl:when test="$action='guest'">
-        <xsl:apply-templates select="host" mode="guest"/>
+        <xsl:apply-templates select="." mode="guest"/>
       </xsl:when>
       <xsl:when test="$action='http'">
-        <xsl:apply-templates select="host" mode="http"/>
+        <xsl:apply-templates select="." mode="http"/>
       </xsl:when>
       <xsl:when test="$action='network'">
-        <xsl:apply-templates select="host" mode="network"/>
+        <xsl:apply-templates select="." mode="network"/>
       </xsl:when>
       <xsl:when test="$action='update'">
-        <xsl:apply-templates select="host" mode="update"/>
+        <xsl:apply-templates select="." mode="update"/>
       </xsl:when>
       <xsl:otherwise>
         <_>echo 'Invalid action' >&amp;2</_>
