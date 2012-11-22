@@ -244,7 +244,7 @@
     <xsl:text>#!/bin/sh&#xa;</xsl:text>
     <xsl:text>exec xsltproc --param action "'</xsl:text>
     <xsl:value-of select="$action"/>
-    <xsl:text>'" /etc/kvmhosting/kvmhosting.xsl /etc/kvmhosting/config.xml&#xa;</xsl:text>
+    <xsl:text>'" /etc/kvmhosting/config.xml&#xa;</xsl:text>
     <xsl:text>EOF&#xa;</xsl:text>
   </xsl:template>
   <xsl:template match="guest" mode="update">
@@ -262,7 +262,7 @@
     <xsl:text>#!/bin/sh&#xa;</xsl:text>
     <xsl:text>exec xsltproc --param action "'guest'" --param name "'</xsl:text>
     <xsl:apply-templates select="@name"/>
-    <xsl:text>'" /etc/kvmhosting/kvmhosting.xsl /etc/kvmhosting/config.xml&#xa;</xsl:text>
+    <xsl:text>'" /etc/kvmhosting/config.xml&#xa;</xsl:text>
     <xsl:text>EOF&#xa;</xsl:text>
   </xsl:template>
 </xsl:stylesheet>
