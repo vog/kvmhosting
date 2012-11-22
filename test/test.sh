@@ -13,7 +13,7 @@ xslt_saxon () {
 }
 xslt_xalan_j () {
     java -classpath /usr/share/java/xalan2.jar org.apache.xalan.xslt.Process \
-        -SECURE -OUT $1 -IN $2 ${3+'-PARAM'} ${3:+'action'} ${3:-} ${4:+'-PARAM'} ${4:+'name'} ${4:-}
+        -OUT $1 -IN $2 ${3+'-PARAM'} ${3:+'action'} ${3:-} ${4:+'-PARAM'} ${4:+'name'} ${4:-}
 }
 
 trap 'rm -f tmp_output_5EZNkciv.sh' 0 INT QUIT

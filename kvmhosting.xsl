@@ -1,233 +1,183 @@
 <?xml version="1.0"?>
 <!-- vim: set expandtab softtabstop=2 autoindent: -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ext="http://exslt.org/common">
   <xsl:param name="action" select="'update'"/>
   <xsl:param name="name"/>
   <xsl:output method="text" encoding="UTF-8"/>
   <xsl:template match="/">
-    <xsl:text>#!/bin/sh&#xa;</xsl:text>
-    <xsl:text>set -eu&#xa;</xsl:text>
+    <xsl:variable name="output">
+      <_>#!/bin/sh</_>
+      <_>set -eu</_>
+      <_/>
+      <xsl:choose>
+        <xsl:when test="$action='guest'">
+          <xsl:apply-templates select="host" mode="guest"/>
+        </xsl:when>
+        <xsl:when test="$action='http'">
+          <xsl:apply-templates select="host" mode="http"/>
+        </xsl:when>
+        <xsl:when test="$action='network'">
+          <xsl:apply-templates select="host" mode="network"/>
+        </xsl:when>
+        <xsl:when test="$action='update'">
+          <xsl:apply-templates select="host" mode="update"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <_>echo 'Invalid action' >&amp;2</_>
+          <_>exit 1</_>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:apply-templates select="ext:node-set($output)" mode="output"/>
+  </xsl:template>
+  <xsl:template match="_" mode="output">
+    <xsl:value-of select="text()"/>
     <xsl:text>&#xa;</xsl:text>
-    <xsl:choose>
-      <xsl:when test="$action='guest'">
-        <xsl:apply-templates select="host" mode="guest"/>
-      </xsl:when>
-      <xsl:when test="$action='http'">
-        <xsl:apply-templates select="host" mode="http"/>
-      </xsl:when>
-      <xsl:when test="$action='network'">
-        <xsl:apply-templates select="host" mode="network"/>
-      </xsl:when>
-      <xsl:when test="$action='update'">
-        <xsl:apply-templates select="host" mode="update"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:text>echo 'Invalid action' >&amp;2&#xa;</xsl:text>
-        <xsl:text>exit 1&#xa;</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
   </xsl:template>
   <xsl:template match="host" mode="guest">
     <xsl:if test="not(guest[@name=$name])">
-      <xsl:text>echo 'Invalid name' >&amp;2&#xa;</xsl:text>
-      <xsl:text>exit 1&#xa;</xsl:text>
+      <_>echo 'Invalid name' >&amp;2</_>
+      <_>exit 1</_>
     </xsl:if>
     <xsl:apply-templates select="guest[@name=$name]" mode="guest"/>
   </xsl:template>
   <xsl:template match="guest" mode="guest">
-    <xsl:text># Avoid hangup of HTTP proxy&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>(sleep 10s; svc -h /service/http) &amp;&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text># Run virtual machine&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>exec kvm \&#xa;</xsl:text>
-    <xsl:text>    -m </xsl:text>
-    <xsl:apply-templates select="@mem"/>
-    <xsl:text> \&#xa;</xsl:text>
-    <xsl:text>    -nographic \&#xa;</xsl:text>
-    <xsl:text>    -boot order=c \&#xa;</xsl:text>
-    <xsl:text>    -drive media=disk,file=</xsl:text>
-    <xsl:apply-templates select="../@disk-prefix"/>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text> \&#xa;</xsl:text>
-    <xsl:text>    -net nic,model=virtio -net tap,ifname=tap_</xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>,script=no,downscript=no&#xa;</xsl:text>
+    <_># Avoid hangup of HTTP proxy</_>
+    <_/>
+    <_>(sleep 10s; svc -h /service/http) &amp;</_>
+    <_/>
+    <_># Run virtual machine</_>
+    <_/>
+    <_>exec kvm \</_>
+    <_>    -m <xsl:apply-templates select="@mem"/> \</_>
+    <_>    -nographic \</_>
+    <_>    -boot order=c \</_>
+    <_>    -drive media=disk,file=<xsl:apply-templates select="../@disk-prefix"/><xsl:apply-templates select="@name"/> \</_>
+    <_>    -net nic,model=virtio -net tap,ifname=tap_<xsl:apply-templates select="@name"/>,script=no,downscript=no</_>
   </xsl:template>
   <xsl:template match="host" mode="http">
-    <xsl:text># Configure HTTP proxy server&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>install -o root -g root -m 600 /dev/stdin /tmp/kvmhosting_nginx.conf &lt;&lt;'EOF'&#xa;</xsl:text>
-    <xsl:text>daemon off;&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>user www-data;&#xa;</xsl:text>
-    <xsl:text>error_log /var/log/nginx/error.log;&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>worker_processes 1;&#xa;</xsl:text>
-    <xsl:text>events {&#xa;</xsl:text>
-    <xsl:text>  worker_connections 1024;&#xa;</xsl:text>
-    <xsl:text>}&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>http {&#xa;</xsl:text>
-    <xsl:text>  access_log /var/log/nginx/access.log;&#xa;</xsl:text>
-    <xsl:text>  proxy_buffering off;&#xa;</xsl:text>
-    <xsl:text>  proxy_connect_timeout 1s;&#xa;</xsl:text>
-    <xsl:text>  proxy_read_timeout 10m;&#xa;</xsl:text>
-    <xsl:text>  proxy_set_header Host $host;&#xa;</xsl:text>
-    <xsl:text>  proxy_set_header X-Real-IP $remote_addr;&#xa;</xsl:text>
-    <xsl:text>  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>  server {&#xa;</xsl:text>
-    <xsl:text>    listen [::]:80 default;&#xa;</xsl:text>
-    <xsl:text>  }&#xa;</xsl:text>
+    <_># Configure HTTP proxy server</_>
+    <_/>
+    <_>install -o root -g root -m 600 /dev/stdin /tmp/kvmhosting_nginx.conf &lt;&lt;'EOF'</_>
+    <_>daemon off;</_>
+    <_/>
+    <_>user www-data;</_>
+    <_>error_log /var/log/nginx/error.log;</_>
+    <_/>
+    <_>worker_processes 1;</_>
+    <_>events {</_>
+    <_>  worker_connections 1024;</_>
+    <_>}</_>
+    <_/>
+    <_>http {</_>
+    <_>  access_log /var/log/nginx/access.log;</_>
+    <_>  proxy_buffering off;</_>
+    <_>  proxy_connect_timeout 1s;</_>
+    <_>  proxy_read_timeout 10m;</_>
+    <_>  proxy_set_header Host $host;</_>
+    <_>  proxy_set_header X-Real-IP $remote_addr;</_>
+    <_>  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</_>
+    <_/>
+    <_>  server {</_>
+    <_>    listen [::]:80 default;</_>
+    <_>  }</_>
     <xsl:apply-templates select="guest" mode="http"/>
-    <xsl:text>}&#xa;</xsl:text>
-    <xsl:text>EOF&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text># Run HTTP proxy server&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>exec nginx -c /tmp/kvmhosting_nginx.conf&#xa;</xsl:text>
+    <_>}</_>
+    <_>EOF</_>
+    <_/>
+    <_># Run HTTP proxy server</_>
+    <_/>
+    <_>exec nginx -c /tmp/kvmhosting_nginx.conf</_>
   </xsl:template>
   <xsl:template match="guest[not(http)]" mode="http">
   </xsl:template>
   <xsl:template match="guest[http]" mode="http">
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>  # </xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>  upstream guest_</xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text> {&#xa;</xsl:text>
-    <xsl:text>    server </xsl:text>
-    <xsl:apply-templates select="@net"/>
-    <xsl:text>2:80 fail_timeout=1s;&#xa;</xsl:text>
-    <xsl:text>  }&#xa;</xsl:text>
-    <xsl:text>  server {&#xa;</xsl:text>
-    <xsl:text>    listen [::]:80;&#xa;</xsl:text>
-    <xsl:text>    server_name</xsl:text>
-    <xsl:apply-templates select="http" mode="http"/>
-    <xsl:text>;&#xa;</xsl:text>
-    <xsl:text>    location / {&#xa;</xsl:text>
-    <xsl:text>      proxy_pass http://guest_</xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>;&#xa;</xsl:text>
-    <xsl:text>    }&#xa;</xsl:text>
-    <xsl:text>  }&#xa;</xsl:text>
+    <_/>
+    <_>  # <xsl:apply-templates select="@name"/></_>
+    <_>  upstream guest_<xsl:apply-templates select="@name"/> {</_>
+    <_>    server <xsl:apply-templates select="@net"/>2:80 fail_timeout=1s;</_>
+    <_>  }</_>
+    <_>  server {</_>
+    <_>    listen [::]:80;</_>
+    <_>    server_name<xsl:apply-templates select="http" mode="http"/>;</_>
+    <_>    location / {</_>
+    <_>      proxy_pass http://guest_<xsl:apply-templates select="@name"/>;</_>
+    <_>    }</_>
+    <_>  }</_>
   </xsl:template>
   <xsl:template match="http" mode="http">
     <xsl:text> </xsl:text>
     <xsl:apply-templates select="@domain"/>
   </xsl:template>
   <xsl:template match="host" mode="network">
-    <xsl:text># Configure TAP devices&#xa;</xsl:text>
+    <_># Configure TAP devices</_>
     <xsl:apply-templates select="guest" mode="network-devices"/>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text># Enable port forwarding&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>echo 1 >/proc/sys/net/ipv4/ip_forward&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text># Configure iptables&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>iptables -t nat -F&#xa;</xsl:text>
-    <xsl:text>iptables -t nat -X&#xa;</xsl:text>
-    <xsl:text>iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -j SNAT --to-source </xsl:text>
-    <xsl:apply-templates select="@snat-ip"/>
-    <xsl:text>&#xa;</xsl:text>
+    <_/>
+    <_># Enable port forwarding</_>
+    <_/>
+    <_>echo 1 >/proc/sys/net/ipv4/ip_forward</_>
+    <_/>
+    <_># Configure iptables</_>
+    <_/>
+    <_>iptables -t nat -F</_>
+    <_>iptables -t nat -X</_>
+    <_>iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -j SNAT --to-source <xsl:apply-templates select="@snat-ip"/></_>
     <xsl:apply-templates select="guest" mode="network-iptables"/>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text># Configure DHCP server&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>install -o root -g root -m 600 /dev/stdin /tmp/kvmhosting_dhcpd.conf &lt;&lt;EOF&#xa;</xsl:text>
-    <xsl:text>option domain-name-servers $(&#xa;</xsl:text>
-    <xsl:text>    sed -n 's/^nameserver \+\([0-9.]\+\)$/\1/p' /etc/resolv.conf | xargs | sed 's/ /, /g'&#xa;</xsl:text>
-    <xsl:text>);&#xa;</xsl:text>
+    <_/>
+    <_># Configure DHCP server</_>
+    <_/>
+    <_>install -o root -g root -m 600 /dev/stdin /tmp/kvmhosting_dhcpd.conf &lt;&lt;EOF</_>
+    <_>option domain-name-servers $(</_>
+    <_>    sed -n 's/^nameserver \+\([0-9.]\+\)$/\1/p' /etc/resolv.conf | xargs | sed 's/ /, /g'</_>
+    <_>);</_>
     <xsl:apply-templates select="guest" mode="network-dhcp"/>
-    <xsl:text>EOF&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text># Run DHCP server&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>exec dhcpd -f -q -cf /tmp/kvmhosting_dhcpd.conf</xsl:text>
-    <xsl:apply-templates select="guest" mode="network-devicenames"/>
-    <xsl:text>&#xa;</xsl:text>
+    <_>EOF</_>
+    <_/>
+    <_># Run DHCP server</_>
+    <_/>
+    <_>exec dhcpd -f -q -cf /tmp/kvmhosting_dhcpd.conf<xsl:apply-templates select="guest" mode="network-devicenames"/></_>
   </xsl:template>
   <xsl:template match="guest" mode="network-devices">
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>ip tuntap add dev tap_</xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text> mode tap vnet_hdr 2>/dev/null \&#xa;</xsl:text>
-    <xsl:text>    || true # Ignore error if TAP device already exists&#xa;</xsl:text>
-    <xsl:text>ip link set tap_</xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text> up&#xa;</xsl:text>
-    <xsl:text>ip addr flush dev tap_</xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>ip addr add </xsl:text>
-    <xsl:apply-templates select="@net"/>
-    <xsl:text>1/24 dev tap_</xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>&#xa;</xsl:text>
+    <_/>
+    <_>ip tuntap add dev tap_<xsl:apply-templates select="@name"/> mode tap vnet_hdr 2>/dev/null \</_>
+    <_>    || true # Ignore error if TAP device already exists</_>
+    <_>ip link set tap_<xsl:apply-templates select="@name"/> up</_>
+    <_>ip addr flush dev tap_<xsl:apply-templates select="@name"/></_>
+    <_>ip addr add <xsl:apply-templates select="@net"/>1/24 dev tap_<xsl:apply-templates select="@name"/></_>
   </xsl:template>
   <xsl:template match="guest[not(tcp)]" mode="network-iptables">
   </xsl:template>
   <xsl:template match="guest[tcp]" mode="network-iptables">
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>iptables -t nat -N </xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>_DNAT&#xa;</xsl:text>
-    <xsl:text>iptables -t nat -A PREROUTING -j </xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>_DNAT&#xa;</xsl:text>
-    <xsl:text>iptables -t nat -A OUTPUT -j </xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>_DNAT&#xa;</xsl:text>
+    <_/>
+    <_>iptables -t nat -N <xsl:apply-templates select="@name"/>_DNAT</_>
+    <_>iptables -t nat -A PREROUTING -j <xsl:apply-templates select="@name"/>_DNAT</_>
+    <_>iptables -t nat -A OUTPUT -j <xsl:apply-templates select="@name"/>_DNAT</_>
     <xsl:apply-templates select="tcp" mode="network-iptables"/>
   </xsl:template>
   <xsl:template match="tcp" mode="network-iptables">
-    <xsl:text>iptables -t nat -A </xsl:text>
-    <xsl:apply-templates select="../@name"/>
-    <xsl:text>_DNAT -d </xsl:text>
-    <xsl:apply-templates select="@ext-ip"/>
-    <xsl:text> -p tcp --dport </xsl:text>
-    <xsl:apply-templates select="@ext-port"/>
-    <xsl:text> -j DNAT --to-destination </xsl:text>
-    <xsl:apply-templates select="../@net"/>
-    <xsl:text>2:</xsl:text>
-    <xsl:apply-templates select="@int-port"/>
-    <xsl:text>&#xa;</xsl:text>
+    <_>iptables -t nat -A <xsl:apply-templates select="../@name"/>_DNAT -d <xsl:apply-templates select="@ext-ip"/> -p tcp --dport <xsl:apply-templates select="@ext-port"/> -j DNAT --to-destination <xsl:apply-templates select="../@net"/>2:<xsl:apply-templates select="@int-port"/></_>
   </xsl:template>
   <xsl:template match="guest" mode="network-dhcp">
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text># </xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>subnet </xsl:text>
-    <xsl:apply-templates select="@net"/>
-    <xsl:text>0 netmask 255.255.255.0 {&#xa;</xsl:text>
-    <xsl:text>    range </xsl:text>
-    <xsl:apply-templates select="@net"/>
-    <xsl:text>2 </xsl:text>
-    <xsl:apply-templates select="@net"/>
-    <xsl:text>2;&#xa;</xsl:text>
-    <xsl:text>    option routers </xsl:text>
-    <xsl:apply-templates select="@net"/>
-    <xsl:text>1;&#xa;</xsl:text>
-    <xsl:text>}&#xa;</xsl:text>
+    <_/>
+    <_># <xsl:apply-templates select="@name"/></_>
+    <_>subnet <xsl:apply-templates select="@net"/>0 netmask 255.255.255.0 {</_>
+    <_>    range <xsl:apply-templates select="@net"/>2 <xsl:apply-templates select="@net"/>2;</_>
+    <_>    option routers <xsl:apply-templates select="@net"/>1;</_>
+    <_>}</_>
   </xsl:template>
   <xsl:template match="guest" mode="network-devicenames">
     <xsl:text> tap_</xsl:text>
     <xsl:apply-templates select="@name"/>
   </xsl:template>
   <xsl:template match="host" mode="update">
-    <xsl:text># Network&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
+    <_># Network</_>
+    <_/>
     <xsl:call-template name="update-service">
       <xsl:with-param name="action" select="'network'"/>
     </xsl:call-template>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text># HTTP&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
+    <_/>
+    <_># HTTP</_>
+    <_/>
     <xsl:call-template name="update-service">
       <xsl:with-param name="action" select="'http'"/>
     </xsl:call-template>
@@ -235,34 +185,20 @@
   </xsl:template>
   <xsl:template name="update-service">
     <xsl:param name="action"/>
-    <xsl:text>install -o root -g root -m 700 -d /service/</xsl:text>
-    <xsl:value-of select="$action"/>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>install -o root -g root -m 700 /dev/stdin /service/</xsl:text>
-    <xsl:value-of select="$action"/>
-    <xsl:text>/run &lt;&lt;'EOF'&#xa;</xsl:text>
-    <xsl:text>#!/bin/sh&#xa;</xsl:text>
-    <xsl:text>exec xsltproc --stringparam action </xsl:text>
-    <xsl:value-of select="$action"/>
-    <xsl:text> /etc/kvmhosting/config.xml&#xa;</xsl:text>
-    <xsl:text>EOF&#xa;</xsl:text>
+    <_>install -o root -g root -m 700 -d /service/<xsl:value-of select="$action"/></_>
+    <_>install -o root -g root -m 700 /dev/stdin /service/<xsl:value-of select="$action"/>/run &lt;&lt;'EOF'</_>
+    <_>#!/bin/sh</_>
+    <_>exec xsltproc --stringparam action <xsl:value-of select="$action"/> /etc/kvmhosting/config.xml</_>
+    <_>EOF</_>
   </xsl:template>
   <xsl:template match="guest" mode="update">
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text># Guest: </xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>install -o root -g root -m 700 -d /service/guest_</xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>&#xa;</xsl:text>
-    <xsl:text>install -o root -g root -m 700 /dev/stdin /service/guest_</xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text>/run &lt;&lt;'EOF'&#xa;</xsl:text>
-    <xsl:text>#!/bin/sh&#xa;</xsl:text>
-    <xsl:text>exec xsltproc --stringparam action guest --stringparam name </xsl:text>
-    <xsl:apply-templates select="@name"/>
-    <xsl:text> /etc/kvmhosting/config.xml&#xa;</xsl:text>
-    <xsl:text>EOF&#xa;</xsl:text>
+    <_/>
+    <_># Guest: <xsl:apply-templates select="@name"/></_>
+    <_/>
+    <_>install -o root -g root -m 700 -d /service/guest_<xsl:apply-templates select="@name"/></_>
+    <_>install -o root -g root -m 700 /dev/stdin /service/guest_<xsl:apply-templates select="@name"/>/run &lt;&lt;'EOF'</_>
+    <_>#!/bin/sh</_>
+    <_>exec xsltproc --stringparam action guest --stringparam name <xsl:apply-templates select="@name"/> /etc/kvmhosting/config.xml</_>
+    <_>EOF</_>
   </xsl:template>
 </xsl:stylesheet>
