@@ -18,13 +18,13 @@ trap 'rm -f tmp_output_5EZNkciv.sh' 0 INT QUIT
 
 for xslt in xslt_xsltproc xslt_xalan_cxx xslt_saxon xslt_xalan_j; do
     echo "Testing with $xslt ..."
-    for name in invalid private tcponly httponly complex; do
-        $xslt tmp_output_5EZNkciv.sh ../config_sample.xml guest $name
-        diff -u sample_guest_$name.sh tmp_output_5EZNkciv.sh
-    done
     for action in invalid http network update; do
         $xslt tmp_output_5EZNkciv.sh ../config_sample.xml $action ''
         diff -u sample_$action.sh tmp_output_5EZNkciv.sh
+    done
+    for name in invalid private tcponly httponly complex; do
+        $xslt tmp_output_5EZNkciv.sh ../config_sample.xml guest $name
+        diff -u sample_guest_$name.sh tmp_output_5EZNkciv.sh
     done
 done
 
