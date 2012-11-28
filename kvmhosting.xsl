@@ -195,7 +195,7 @@
     <_>install -o root -g root -m 700 -d /service/<xsl:value-of select="$action"/></_>
     <_>install -o root -g root -m 700 /dev/stdin /service/<xsl:value-of select="$action"/>/run &lt;&lt;'EOF'</_>
     <_>#!/bin/sh</_>
-    <_>exec xsltproc --stringparam action <xsl:value-of select="$action"/> /etc/kvmhosting/config.xml</_>
+    <_>exec xsltproc --stringparam action <xsl:value-of select="$action"/> /etc/kvmhosting/config.xml | sh</_>
     <_>EOF</_>
   </xsl:template>
   <xsl:template match="guest" mode="install">
@@ -205,7 +205,7 @@
     <_>install -o root -g root -m 700 -d /service/guest_<xsl:apply-templates select="@name"/></_>
     <_>install -o root -g root -m 700 /dev/stdin /service/guest_<xsl:apply-templates select="@name"/>/run &lt;&lt;'EOF'</_>
     <_>#!/bin/sh</_>
-    <_>exec xsltproc --stringparam action guest --stringparam name <xsl:apply-templates select="@name"/> /etc/kvmhosting/config.xml</_>
+    <_>exec xsltproc --stringparam action guest --stringparam name <xsl:apply-templates select="@name"/> /etc/kvmhosting/config.xml | sh</_>
     <_>EOF</_>
   </xsl:template>
 </xsl:stylesheet>
