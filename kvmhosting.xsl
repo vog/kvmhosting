@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- vim: set expandtab softtabstop=2 autoindent: -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ext="http://exslt.org/common">
-  <xsl:param name="action" select="'update'"/>
+  <xsl:param name="action" select="'install'"/>
   <xsl:param name="name"/>
   <xsl:output method="text" encoding="UTF-8"/>
   <xsl:template match="/">
@@ -27,8 +27,8 @@
       <xsl:when test="$action='network'">
         <xsl:apply-templates select="." mode="network"/>
       </xsl:when>
-      <xsl:when test="$action='update'">
-        <xsl:apply-templates select="." mode="update"/>
+      <xsl:when test="$action='install'">
+        <xsl:apply-templates select="." mode="install"/>
       </xsl:when>
       <xsl:otherwise>
         <_>echo 'Invalid action' >&amp;2</_>
@@ -176,21 +176,21 @@
   <xsl:template match="guest" mode="network-devicenames">
     <_ xml:space="preserve"> tap_<xsl:apply-templates select="@name"/></_>
   </xsl:template>
-  <xsl:template match="host" mode="update">
+  <xsl:template match="host" mode="install">
     <_># Network</_>
     <_/>
-    <xsl:call-template name="update-service">
+    <xsl:call-template name="install-service">
       <xsl:with-param name="action" select="'network'"/>
     </xsl:call-template>
     <_/>
     <_># HTTP</_>
     <_/>
-    <xsl:call-template name="update-service">
+    <xsl:call-template name="install-service">
       <xsl:with-param name="action" select="'http'"/>
     </xsl:call-template>
-    <xsl:apply-templates select="guest" mode="update"/>
+    <xsl:apply-templates select="guest" mode="install"/>
   </xsl:template>
-  <xsl:template name="update-service">
+  <xsl:template name="install-service">
     <xsl:param name="action"/>
     <_>install -o root -g root -m 700 -d /service/<xsl:value-of select="$action"/></_>
     <_>install -o root -g root -m 700 /dev/stdin /service/<xsl:value-of select="$action"/>/run &lt;&lt;'EOF'</_>
@@ -198,7 +198,7 @@
     <_>exec xsltproc --stringparam action <xsl:value-of select="$action"/> /etc/kvmhosting/config.xml</_>
     <_>EOF</_>
   </xsl:template>
-  <xsl:template match="guest" mode="update">
+  <xsl:template match="guest" mode="install">
     <_/>
     <_># Guest: <xsl:apply-templates select="@name"/></_>
     <_/>
