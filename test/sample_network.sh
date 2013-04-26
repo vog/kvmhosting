@@ -21,6 +21,12 @@ ip link set tap_httponly up
 ip addr flush dev tap_httponly
 ip addr add 10.0.3.1/24 dev tap_httponly
 
+ip tuntap add dev tap_httpsonly mode tap vnet_hdr 2>/dev/null \
+    || true # Ignore error if TAP device already exists
+ip link set tap_httpsonly up
+ip addr flush dev tap_httpsonly
+ip addr add 10.0.4.1/24 dev tap_httpsonly
+
 ip tuntap add dev tap_complex mode tap vnet_hdr 2>/dev/null \
     || true # Ignore error if TAP device already exists
 ip link set tap_complex up
@@ -73,6 +79,12 @@ subnet 10.0.3.0 netmask 255.255.255.0 {
     option routers 10.0.3.1;
 }
 
+# httpsonly
+subnet 10.0.4.0 netmask 255.255.255.0 {
+    range 10.0.4.2 10.0.4.2;
+    option routers 10.0.4.1;
+}
+
 # complex
 subnet 10.0.5.0 netmask 255.255.255.0 {
     range 10.0.5.2 10.0.5.2;
@@ -82,4 +94,4 @@ EOF
 
 # Run DHCP server
 
-exec dhcpd -f -q -cf /tmp/kvmhosting_dhcpd.conf tap_private tap_tcponly tap_httponly tap_complex
+exec dhcpd -f -q -cf /tmp/kvmhosting_dhcpd.conf tap_private tap_tcponly tap_httponly tap_httpsonly tap_complex

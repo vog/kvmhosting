@@ -79,11 +79,12 @@
     <_>  proxy_set_header Host $host;</_>
     <_>  proxy_set_header X-Real-IP $remote_addr;</_>
     <_>  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</_>
+    <_>  proxy_set_header X-Forwarded-Proto $scheme;</_>
     <_/>
     <_>  server {</_>
     <_>    listen [::]:80 default;</_>
     <_>  }</_>
-    <xsl:apply-templates select="guest" mode="http"/>
+    <xsl:apply-templates select="guest[http|http-ssl]" mode="http"/>
     <_>}</_>
     <_>EOF</_>
     <_/>
@@ -91,24 +92,42 @@
     <_/>
     <_>exec nginx -c /tmp/kvmhosting_nginx.conf</_>
   </xsl:template>
-  <xsl:template match="guest[not(http)]" mode="http">
-  </xsl:template>
-  <xsl:template match="guest[http]" mode="http">
+  <xsl:template match="guest[http|http-ssl]" mode="http">
     <_/>
     <_>  # <xsl:apply-templates select="@name"/></_>
     <_>  upstream guest_<xsl:apply-templates select="@name"/> {</_>
     <_>    server <xsl:apply-templates select="@net"/>2:80 fail_timeout=1s;</_>
     <_>  }</_>
-    <_>  server {</_>
-    <_>    listen [::]:80;</_>
-    <_>    server_name<xsl:apply-templates select="http" mode="http"/>;</_>
-    <_>    location / {</_>
-    <_>      proxy_pass http://guest_<xsl:apply-templates select="@name"/>;</_>
-    <_>    }</_>
-    <_>  }</_>
+    <xsl:if test="http">
+      <_>  server {</_>
+      <_>    listen [::]:80;</_>
+      <_>    server_name<xsl:apply-templates select="http/@domain" mode="http"/>;</_>
+      <_>    location / {</_>
+      <_>      proxy_pass http://guest_<xsl:apply-templates select="@name"/>;</_>
+      <_>    }</_>
+      <_>  }</_>
+    </xsl:if>
+    <xsl:if test="http-ssl">
+      <_>  server {</_>
+      <_>    listen [::]:80;</_>
+      <_>    server_name<xsl:apply-templates select="http-ssl/@domain" mode="http"/>;</_>
+      <_>    rewrite ^ https://$host/ permanent;</_>
+      <_>  }</_>
+      <xsl:for-each select="http-ssl">
+        <_>  server {</_>
+        <_>    listen [::]:443 ssl;</_>
+        <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
+        <_>    ssl_certificate     /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
+        <_>    ssl_certificate_key /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
+        <_>    location / {</_>
+        <_>      proxy_pass http://guest_<xsl:apply-templates select="../@name"/>;</_>
+        <_>    }</_>
+        <_>  }</_>
+      </xsl:for-each>
+    </xsl:if>
   </xsl:template>
-  <xsl:template match="http" mode="http">
-    <_ xml:space="preserve"> <xsl:apply-templates select="@domain"/></_>
+  <xsl:template match="@domain" mode="http">
+    <_ xml:space="preserve"> <xsl:apply-templates select="."/></_>
   </xsl:template>
   <xsl:template match="host" mode="network">
     <_># Configure TAP devices</_>

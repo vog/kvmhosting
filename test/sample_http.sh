@@ -39,6 +39,25 @@ http {
     }
   }
 
+  # httpsonly
+  upstream guest_httpsonly {
+    server 10.0.4.2:80 fail_timeout=1s;
+  }
+  server {
+    listen [::]:80;
+    server_name httpsonly.example.com;
+    rewrite ^ https://$host/ permanent;
+  }
+  server {
+    listen [::]:443 ssl;
+    server_name httpsonly.example.com;
+    ssl_certificate     httpsonly.example.com.pem;
+    ssl_certificate_key httpsonly.example.com.pem;
+    location / {
+      proxy_pass http://guest_httpsonly;
+    }
+  }
+
   # complex
   upstream guest_complex {
     server 10.0.5.2:80 fail_timeout=1s;
@@ -46,6 +65,29 @@ http {
   server {
     listen [::]:80;
     server_name .example.org example.com www.example.com images.example.com;
+    location / {
+      proxy_pass http://guest_complex;
+    }
+  }
+  server {
+    listen [::]:80;
+    server_name secure.example.com secure2.example.com;
+    rewrite ^ https://$host/ permanent;
+  }
+  server {
+    listen [::]:443 ssl;
+    server_name secure.example.com;
+    ssl_certificate     secure.example.com.pem;
+    ssl_certificate_key secure.example.com.pem;
+    location / {
+      proxy_pass http://guest_complex;
+    }
+  }
+  server {
+    listen [::]:443 ssl;
+    server_name secure2.example.com;
+    ssl_certificate     secure2.example.com.pem;
+    ssl_certificate_key secure2.example.com.pem;
     location / {
       proxy_pass http://guest_complex;
     }

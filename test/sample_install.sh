@@ -41,6 +41,14 @@ install -o root -g root -m 700 /dev/stdin /service/guest_httponly/run <<'EOF'
 exec xsltproc --stringparam action guest --stringparam name httponly /etc/kvmhosting/config.xml | sh
 EOF
 
+# Guest: httpsonly
+
+install -o root -g root -m 700 -d /service/guest_httpsonly
+install -o root -g root -m 700 /dev/stdin /service/guest_httpsonly/run <<'EOF'
+#!/bin/sh
+exec xsltproc --stringparam action guest --stringparam name httpsonly /etc/kvmhosting/config.xml | sh
+EOF
+
 # Guest: complex
 
 install -o root -g root -m 700 -d /service/guest_complex

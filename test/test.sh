@@ -26,7 +26,7 @@ for xslt in xslt_xsltproc xslt_xalan_cxx xslt_saxon xslt_xalan_j; do
         $xslt tmp_output_5EZNkciv.sh ../config_sample.xml $action
         diff -u sample_$action.sh tmp_output_5EZNkciv.sh
     done
-    for name in invalid private tcponly httponly complex; do
+    for name in invalid private tcponly httponly httpsonly complex; do
         $xslt tmp_output_5EZNkciv.sh ../config_sample.xml guest $name
         diff -u sample_guest_$name.sh tmp_output_5EZNkciv.sh
     done
