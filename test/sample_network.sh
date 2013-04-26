@@ -25,7 +25,7 @@ ip tuntap add dev tap_complex mode tap vnet_hdr 2>/dev/null \
     || true # Ignore error if TAP device already exists
 ip link set tap_complex up
 ip addr flush dev tap_complex
-ip addr add 10.0.4.1/24 dev tap_complex
+ip addr add 10.0.5.1/24 dev tap_complex
 
 # Enable port forwarding
 
@@ -45,8 +45,8 @@ iptables -t nat -A tcponly_DNAT -d 192.168.0.2 -p tcp --dport 2022 -j DNAT --to-
 iptables -t nat -N complex_DNAT
 iptables -t nat -A PREROUTING -j complex_DNAT
 iptables -t nat -A OUTPUT -j complex_DNAT
-iptables -t nat -A complex_DNAT -d 192.168.0.2 -p tcp --dport 4022 -j DNAT --to-destination 10.0.4.2:22
-iptables -t nat -A complex_DNAT -d 192.168.0.3 -p tcp --dport 25 -j DNAT --to-destination 10.0.4.2:25
+iptables -t nat -A complex_DNAT -d 192.168.0.2 -p tcp --dport 4022 -j DNAT --to-destination 10.0.5.2:22
+iptables -t nat -A complex_DNAT -d 192.168.0.3 -p tcp --dport 25 -j DNAT --to-destination 10.0.5.2:25
 
 # Configure DHCP server
 
@@ -74,9 +74,9 @@ subnet 10.0.3.0 netmask 255.255.255.0 {
 }
 
 # complex
-subnet 10.0.4.0 netmask 255.255.255.0 {
-    range 10.0.4.2 10.0.4.2;
-    option routers 10.0.4.1;
+subnet 10.0.5.0 netmask 255.255.255.0 {
+    range 10.0.5.2 10.0.5.2;
+    option routers 10.0.5.1;
 }
 EOF
 

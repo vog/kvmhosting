@@ -10,7 +10,7 @@
   <guest name="httponly" net="10.0.3." mem="512M">
     <http domain="httponly.example.com"/>
   </guest>
-  <guest name="complex" net="10.0.4." mem="1G">
+  <guest name="complex" net="10.0.5." mem="1G">
     <tcp ext-ip="192.168.0.2" ext-port="4022" int-port="22"/>
     <tcp ext-ip="192.168.0.3" ext-port="25" int-port="25"/>
     <http domain=".example.org"/>

@@ -41,7 +41,7 @@ http {
 
   # complex
   upstream guest_complex {
-    server 10.0.4.2:80 fail_timeout=1s;
+    server 10.0.5.2:80 fail_timeout=1s;
   }
   server {
     listen [::]:80;
