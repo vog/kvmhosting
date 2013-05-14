@@ -22,6 +22,7 @@ http {
   proxy_set_header Host $host;
   proxy_set_header X-Real-IP $remote_addr;
   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
 
   server {
     listen [::]:80 default;
@@ -51,8 +52,8 @@ http {
   server {
     listen [::]:443 ssl;
     server_name httpsonly.example.com;
-    ssl_certificate     httpsonly.example.com.pem;
-    ssl_certificate_key httpsonly.example.com.pem;
+    ssl_certificate     /etc/ssl/private/httpsonly.example.com.pem;
+    ssl_certificate_key /etc/ssl/private/httpsonly.example.com.pem;
     location / {
       proxy_pass http://guest_httpsonly;
     }
@@ -77,8 +78,8 @@ http {
   server {
     listen [::]:443 ssl;
     server_name secure.example.com;
-    ssl_certificate     secure.example.com.pem;
-    ssl_certificate_key secure.example.com.pem;
+    ssl_certificate     /etc/ssl/private/secure.example.com.pem;
+    ssl_certificate_key /etc/ssl/private/secure.example.com.pem;
     location / {
       proxy_pass http://guest_complex;
     }
@@ -86,8 +87,8 @@ http {
   server {
     listen [::]:443 ssl;
     server_name secure2.example.com;
-    ssl_certificate     secure2.example.com.pem;
-    ssl_certificate_key secure2.example.com.pem;
+    ssl_certificate     /etc/ssl/private/secure2.example.com.pem;
+    ssl_certificate_key /etc/ssl/private/secure2.example.com.pem;
     location / {
       proxy_pass http://guest_complex;
     }
