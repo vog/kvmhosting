@@ -35,6 +35,11 @@ http {
   server {
     listen [::]:80;
     server_name httponly.example.com;
+    chunkin on;
+    error_page 411 = @my_411_error;
+    location @my_411_error {
+      chunkin_resume;
+    }
     location / {
       proxy_pass http://guest_httponly;
     }
@@ -54,6 +59,11 @@ http {
     server_name httpsonly.example.com;
     ssl_certificate     /etc/ssl/private/httpsonly.example.com.pem;
     ssl_certificate_key /etc/ssl/private/httpsonly.example.com.pem;
+    chunkin on;
+    error_page 411 = @my_411_error;
+    location @my_411_error {
+      chunkin_resume;
+    }
     location / {
       proxy_pass http://guest_httpsonly;
     }
@@ -66,6 +76,11 @@ http {
   server {
     listen [::]:80;
     server_name .example.org example.com www.example.com images.example.com;
+    chunkin on;
+    error_page 411 = @my_411_error;
+    location @my_411_error {
+      chunkin_resume;
+    }
     location / {
       proxy_pass http://guest_complex;
     }
@@ -80,6 +95,11 @@ http {
     server_name secure.example.com;
     ssl_certificate     /etc/ssl/private/secure.example.com.pem;
     ssl_certificate_key /etc/ssl/private/secure.example.com.pem;
+    chunkin on;
+    error_page 411 = @my_411_error;
+    location @my_411_error {
+      chunkin_resume;
+    }
     location / {
       proxy_pass http://guest_complex;
     }
@@ -89,6 +109,11 @@ http {
     server_name secure2.example.com;
     ssl_certificate     /etc/ssl/private/secure2.example.com.pem;
     ssl_certificate_key /etc/ssl/private/secure2.example.com.pem;
+    chunkin on;
+    error_page 411 = @my_411_error;
+    location @my_411_error {
+      chunkin_resume;
+    }
     location / {
       proxy_pass http://guest_complex;
     }

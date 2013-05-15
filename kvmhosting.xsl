@@ -102,6 +102,12 @@
       <_>  server {</_>
       <_>    listen [::]:80;</_>
       <_>    server_name<xsl:apply-templates select="http/@domain" mode="http"/>;</_>
+      <!-- TODO: Remove this as soon as we use nginx >= 1.3.9, see: http://wiki.nginx.org/HttpChunkinModule -->
+      <_>    chunkin on;</_>
+      <_>    error_page 411 = @my_411_error;</_>
+      <_>    location @my_411_error {</_>
+      <_>      chunkin_resume;</_>
+      <_>    }</_>
       <_>    location / {</_>
       <_>      proxy_pass http://guest_<xsl:apply-templates select="@name"/>;</_>
       <_>    }</_>
@@ -119,6 +125,12 @@
         <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
         <_>    ssl_certificate     /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
         <_>    ssl_certificate_key /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
+        <!-- TODO: Remove this as soon as we use nginx >= 1.3.9, see: http://wiki.nginx.org/HttpChunkinModule -->
+        <_>    chunkin on;</_>
+        <_>    error_page 411 = @my_411_error;</_>
+        <_>    location @my_411_error {</_>
+        <_>      chunkin_resume;</_>
+        <_>    }</_>
         <_>    location / {</_>
         <_>      proxy_pass http://guest_<xsl:apply-templates select="../@name"/>;</_>
         <_>    }</_>
