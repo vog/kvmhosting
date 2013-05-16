@@ -73,6 +73,7 @@
     <_/>
     <_>http {</_>
     <_>  access_log /var/log/nginx/access.log;</_>
+    <_>  client_max_body_size 0;</_>
     <_>  proxy_buffering off;</_>
     <_>  proxy_connect_timeout 1s;</_>
     <_>  proxy_read_timeout 10m;</_>
