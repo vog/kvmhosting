@@ -83,7 +83,7 @@
     <_>  proxy_set_header X-Forwarded-Proto $scheme;</_>
     <_/>
     <_>  server {</_>
-    <_>    listen [::]:80 default;</_>
+    <_>    listen [::]:80 default ipv6only=off;</_>
     <_>  }</_>
     <xsl:apply-templates select="guest[http|http-ssl]" mode="http"/>
     <_>}</_>
@@ -116,7 +116,7 @@
       <_>  }</_>
       <xsl:for-each select="http-ssl">
         <_>  server {</_>
-        <_>    listen [::]:443 ssl;</_>
+        <_>    listen [::]:443 ssl<xsl:if test="position()=1 and ..=../../guest[http-ssl][1]"> ipv6only=off</xsl:if>;</_>
         <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
         <_>    ssl_certificate     /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
         <_>    ssl_certificate_key /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>

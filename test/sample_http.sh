@@ -26,7 +26,7 @@ http {
   proxy_set_header X-Forwarded-Proto $scheme;
 
   server {
-    listen [::]:80 default;
+    listen [::]:80 default ipv6only=off;
   }
 
   # httponly
@@ -51,7 +51,7 @@ http {
     rewrite ^ https://$host/ permanent;
   }
   server {
-    listen [::]:443 ssl;
+    listen [::]:443 ssl ipv6only=off;
     server_name httpsonly.example.com;
     ssl_certificate     /etc/ssl/private/httpsonly.example.com.pem;
     ssl_certificate_key /etc/ssl/private/httpsonly.example.com.pem;
