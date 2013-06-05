@@ -83,7 +83,7 @@
     <_>  proxy_set_header X-Forwarded-Proto $scheme;</_>
     <_/>
     <_>  server {</_>
-    <_>    listen [::]:80 default ipv6only=off;</_>
+    <_>    listen *:80 default;</_>
     <_>  }</_>
     <xsl:apply-templates select="guest[http|http-ssl]" mode="http"/>
     <_>}</_>
@@ -101,7 +101,7 @@
     <_>  }</_>
     <xsl:if test="http">
       <_>  server {</_>
-      <_>    listen [::]:80;</_>
+      <_>    listen *:80;</_>
       <_>    server_name<xsl:apply-templates select="http/@domain" mode="http"/>;</_>
       <_>    location / {</_>
       <_>      proxy_pass http://guest_<xsl:apply-templates select="@name"/>;</_>
@@ -110,13 +110,13 @@
     </xsl:if>
     <xsl:if test="http-ssl">
       <_>  server {</_>
-      <_>    listen [::]:80;</_>
+      <_>    listen *:80;</_>
       <_>    server_name<xsl:apply-templates select="http-ssl/@domain" mode="http"/>;</_>
       <_>    rewrite ^ https://$host/ permanent;</_>
       <_>  }</_>
       <xsl:for-each select="http-ssl">
         <_>  server {</_>
-        <_>    listen [::]:443 ssl<xsl:if test="position()=1 and ..=../../guest[http-ssl][1]"> ipv6only=off</xsl:if>;</_>
+        <_>    listen *:443 ssl;</_>
         <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
         <_>    ssl_certificate     /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
         <_>    ssl_certificate_key /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
