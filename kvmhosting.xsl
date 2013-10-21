@@ -81,6 +81,7 @@
     <_>  proxy_set_header X-Real-IP $remote_addr;</_>
     <_>  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</_>
     <_>  proxy_set_header X-Forwarded-Proto $scheme;</_>
+    <_>  proxy_set_header X-Forwarded-HTTPS 1;  # Workaround for mod_rpaf</_>
     <_/>
     <_>  server {</_>
     <_>    listen *:80 default;</_>
