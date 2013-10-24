@@ -109,24 +109,22 @@
       <_>    }</_>
       <_>  }</_>
     </xsl:if>
-    <xsl:if test="http-ssl">
+    <xsl:for-each select="http-ssl">
       <_>  server {</_>
       <_>    listen *:80;</_>
-      <_>    server_name<xsl:apply-templates select="http-ssl/@domain" mode="http"/>;</_>
-      <_>    rewrite ^ https://$host/ permanent;</_>
+      <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
+      <_>    return 301 https://<xsl:apply-templates select="@domain"/>;</_>
       <_>  }</_>
-      <xsl:for-each select="http-ssl">
-        <_>  server {</_>
-        <_>    listen *:443 ssl;</_>
-        <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
-        <_>    ssl_certificate     /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
-        <_>    ssl_certificate_key /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
-        <_>    location / {</_>
-        <_>      proxy_pass http://guest_<xsl:apply-templates select="../@name"/>;</_>
-        <_>    }</_>
-        <_>  }</_>
-      </xsl:for-each>
-    </xsl:if>
+      <_>  server {</_>
+      <_>    listen *:443 ssl;</_>
+      <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
+      <_>    ssl_certificate     /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
+      <_>    ssl_certificate_key /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
+      <_>    location / {</_>
+      <_>      proxy_pass http://guest_<xsl:apply-templates select="../@name"/>;</_>
+      <_>    }</_>
+      <_>  }</_>
+    </xsl:for-each>
   </xsl:template>
   <xsl:template match="@domain" mode="http">
     <_ xml:space="preserve"><xsl:text> </xsl:text><xsl:apply-templates select="."/></_>

@@ -49,7 +49,7 @@ http {
   server {
     listen *:80;
     server_name httpsonly.example.com;
-    rewrite ^ https://$host/ permanent;
+    return 301 https://httpsonly.example.com;
   }
   server {
     listen *:443 ssl;
@@ -74,8 +74,8 @@ http {
   }
   server {
     listen *:80;
-    server_name secure.example.com secure2.example.com;
-    rewrite ^ https://$host/ permanent;
+    server_name secure.example.com;
+    return 301 https://secure.example.com;
   }
   server {
     listen *:443 ssl;
@@ -85,6 +85,11 @@ http {
     location / {
       proxy_pass http://guest_complex;
     }
+  }
+  server {
+    listen *:80;
+    server_name secure2.example.com;
+    return 301 https://secure2.example.com;
   }
   server {
     listen *:443 ssl;
