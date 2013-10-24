@@ -129,7 +129,7 @@
     </xsl:if>
   </xsl:template>
   <xsl:template match="@domain" mode="http">
-    <_ xml:space="preserve"> <xsl:apply-templates select="."/></_>
+    <_ xml:space="preserve"><xsl:text> </xsl:text><xsl:apply-templates select="."/></_>
   </xsl:template>
   <xsl:template match="host" mode="network">
     <_># Configure TAP devices</_>
