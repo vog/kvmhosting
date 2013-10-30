@@ -11,5 +11,5 @@ exec kvm \
     -m 128M \
     -nographic \
     -boot order=c \
-    -drive media=disk,file=/dev/vg0/private \
+    -drive if=virtio,media=disk,file=/dev/vg0/private \
     -net nic,model=virtio -net tap,ifname=tap_private,script=no,downscript=no

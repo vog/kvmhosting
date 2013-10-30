@@ -11,5 +11,5 @@ exec kvm \
     -m 512M \
     -nographic \
     -boot order=c \
-    -drive media=disk,file=/dev/vg0/httpsonly \
+    -drive if=virtio,media=disk,file=/dev/vg0/httpsonly \
     -net nic,model=virtio -net tap,ifname=tap_httpsonly,script=no,downscript=no
