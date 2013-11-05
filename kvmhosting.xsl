@@ -113,7 +113,14 @@
       <_>  server {</_>
       <_>    listen *:80;</_>
       <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
-      <_>    return 301 https://<xsl:apply-templates select="@domain"/>;</_>
+      <xsl:choose>
+        <xsl:when test="@redirect='unsafe'">
+          <_>    return 301 https://<xsl:apply-templates select="@domain"/>$request_uri;</_>
+        </xsl:when>
+        <xsl:otherwise>
+          <_>    return 301 https://<xsl:apply-templates select="@domain"/>;</_>
+        </xsl:otherwise>
+      </xsl:choose>
       <_>  }</_>
       <_>  server {</_>
       <_>    listen *:443 ssl;</_>

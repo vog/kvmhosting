@@ -100,6 +100,20 @@ http {
       proxy_pass http://guest_complex;
     }
   }
+  server {
+    listen *:80;
+    server_name secure3.example.com;
+    return 301 https://secure3.example.com$request_uri;
+  }
+  server {
+    listen *:443 ssl;
+    server_name secure3.example.com;
+    ssl_certificate     /etc/ssl/private/secure3.example.com.pem;
+    ssl_certificate_key /etc/ssl/private/secure3.example.com.pem;
+    location / {
+      proxy_pass http://guest_complex;
+    }
+  }
 }
 EOF
 

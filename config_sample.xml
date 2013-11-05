@@ -22,5 +22,6 @@
     <http domain="images.example.com"/>
     <http-ssl domain="secure.example.com"/>
     <http-ssl domain="secure2.example.com"/>
+    <http-ssl domain="secure3.example.com" redirect="unsafe"/>
   </guest>
 </host>
