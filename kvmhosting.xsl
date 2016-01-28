@@ -50,7 +50,8 @@
     <_/>
     <_># Run virtual machine</_>
     <_/>
-    <_>exec kvm \</_>
+    <_>exec qemu-system-x86_64 \</_>
+    <_>    -enable-kvm \</_>
     <_>    -m <xsl:apply-templates select="@mem"/> \</_>
     <_>    -nographic \</_>
     <_>    -boot order=c \</_>

@@ -7,7 +7,8 @@ set -eu
 
 # Run virtual machine
 
-exec kvm \
+exec qemu-system-x86_64 \
+    -enable-kvm \
     -m 256M \
     -nographic \
     -boot order=c \
