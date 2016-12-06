@@ -13,4 +13,5 @@ exec qemu-system-x86_64 \
     -nographic \
     -boot order=c \
     -drive if=virtio,media=disk,file=/dev/vg0/httpsonly \
+    -drive if=virtio,media=disk,file=/dev/mapper/httpsonly_db \
     -net nic,model=virtio -net tap,ifname=tap_httpsonly,script=no,downscript=no

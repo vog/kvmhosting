@@ -56,6 +56,9 @@
     <_>    -nographic \</_>
     <_>    -boot order=c \</_>
     <_>    -drive if=virtio,media=disk,file=<xsl:apply-templates select="../@disk-prefix"/><xsl:apply-templates select="@name"/> \</_>
+    <xsl:for-each select="extra-disk">
+      <_>    -drive if=virtio,media=disk,file=<xsl:apply-templates select="@dev"/> \</_>
+    </xsl:for-each>
     <_>    -net nic,model=virtio -net tap,ifname=tap_<xsl:apply-templates select="@name"/>,script=no,downscript=no</_>
   </xsl:template>
   <xsl:template match="host" mode="http">

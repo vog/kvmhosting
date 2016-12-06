@@ -11,9 +11,12 @@
     <http domain="httponly.example.com"/>
   </guest>
   <guest name="httpsonly" net="10.0.4." mem="512M">
+    <extra-disk dev="/dev/mapper/httpsonly_db"/>
     <http-ssl domain="httpsonly.example.com"/>
   </guest>
   <guest name="complex" net="10.0.5." mem="1G">
+    <extra-disk dev="/dev/mapper/complex_extradisk1"/>
+    <extra-disk dev="/dev/mapper/complex_extradisk2"/>
     <tcp ext-ip="192.168.0.2" ext-port="4022" int-port="22"/>
     <tcp ext-ip="192.168.0.3" ext-port="25" int-port="25"/>
     <http domain=".example.org"/>
