@@ -54,15 +54,6 @@ http {
       return 301 https://httpsonly.example.com;
     }
   }
-  server {
-    listen *:443 ssl;
-    server_name httpsonly.example.com;
-    ssl_certificate     /etc/ssl/private/httpsonly.example.com.pem;
-    ssl_certificate_key /etc/ssl/private/httpsonly.example.com.pem;
-    location / {
-      proxy_pass http://guest_httpsonly;
-    }
-  }
 
   # complex
   upstream guest_complex {
@@ -83,15 +74,6 @@ http {
     }
   }
   server {
-    listen *:443 ssl;
-    server_name secure.example.com;
-    ssl_certificate     /etc/ssl/private/secure.example.com.pem;
-    ssl_certificate_key /etc/ssl/private/secure.example.com.pem;
-    location / {
-      proxy_pass http://guest_complex;
-    }
-  }
-  server {
     listen *:80;
     server_name secure2.example.com;
     location / {
@@ -102,28 +84,10 @@ http {
     }
   }
   server {
-    listen *:443 ssl;
-    server_name secure2.example.com;
-    ssl_certificate     /etc/letsencrypt/live/secure2.example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/secure2.example.com/privkey.pem;
-    location / {
-      proxy_pass http://guest_complex;
-    }
-  }
-  server {
     listen *:80;
     server_name secure3.example.com;
     location / {
       return 301 https://secure3.example.com$request_uri;
-    }
-  }
-  server {
-    listen *:443 ssl;
-    server_name secure3.example.com;
-    ssl_certificate     /etc/ssl/private/secure3.example.com.pem;
-    ssl_certificate_key /etc/ssl/private/secure3.example.com.pem;
-    location / {
-      proxy_pass http://guest_complex;
     }
   }
   server {
@@ -134,15 +98,6 @@ http {
     }
     location /.well-known/acme-challenge {
       alias /var/www/letsencrypt/.well-known/acme-challenge;
-    }
-  }
-  server {
-    listen *:443 ssl;
-    server_name secure4.example.com;
-    ssl_certificate     /etc/letsencrypt/live/secure4.example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/secure4.example.com/privkey.pem;
-    location / {
-      proxy_pass http://guest_complex;
     }
   }
 }

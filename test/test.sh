@@ -22,7 +22,7 @@ for xslt in xslt_xsltproc xslt_xalan_cxx xslt_saxon xslt_xalan_j; do
     echo "Testing with $xslt ..."
     $xslt tmp_output_5EZNkciv.sh ../config_sample.xml
     diff -u sample_install.sh tmp_output_5EZNkciv.sh
-    for action in invalid http network install; do
+    for action in invalid http http_nossl network install; do
         $xslt tmp_output_5EZNkciv.sh ../config_sample.xml $action
         diff -u sample_$action.sh tmp_output_5EZNkciv.sh
     done

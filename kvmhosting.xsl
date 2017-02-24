@@ -24,6 +24,11 @@
       <xsl:when test="$action='http'">
         <xsl:apply-templates select="." mode="http"/>
       </xsl:when>
+      <xsl:when test="$action='http_nossl'">
+        <xsl:apply-templates select="." mode="http">
+          <xsl:with-param name="http_mode" select="'nossl'"/>
+        </xsl:apply-templates>
+      </xsl:when>
       <xsl:when test="$action='network'">
         <xsl:apply-templates select="." mode="network"/>
       </xsl:when>
@@ -62,6 +67,7 @@
     <_>    -net nic,model=virtio -net tap,ifname=tap_<xsl:apply-templates select="@name"/>,script=no,downscript=no</_>
   </xsl:template>
   <xsl:template match="host" mode="http">
+    <xsl:param name="http_mode"/>
     <_># Configure HTTP proxy server</_>
     <_/>
     <_>install -o root -g root -m 600 /dev/stdin /tmp/kvmhosting_nginx.conf &lt;&lt;'EOF'</_>
@@ -91,7 +97,9 @@
     <_>  server {</_>
     <_>    listen *:80 default;</_>
     <_>  }</_>
-    <xsl:apply-templates select="guest[http|http-ssl]" mode="http"/>
+    <xsl:apply-templates select="guest[http|http-ssl]" mode="http">
+      <xsl:with-param name="http_mode" select="$http_mode"/>
+    </xsl:apply-templates>
     <_>}</_>
     <_>EOF</_>
     <_/>
@@ -100,6 +108,7 @@
     <_>exec nginx -c /tmp/kvmhosting_nginx.conf</_>
   </xsl:template>
   <xsl:template match="guest[http|http-ssl]" mode="http">
+    <xsl:param name="http_mode"/>
     <_/>
     <_>  # <xsl:apply-templates select="@name"/></_>
     <_>  upstream guest_<xsl:apply-templates select="@name"/> {</_>
@@ -118,24 +127,41 @@
       <_>  server {</_>
       <_>    listen *:80;</_>
       <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
+      <_>    location / {</_>
       <xsl:choose>
         <xsl:when test="@redirect='unsafe'">
-          <_>    return 301 https://<xsl:apply-templates select="@domain"/>$request_uri;</_>
+          <_>      return 301 https://<xsl:apply-templates select="@domain"/>$request_uri;</_>
         </xsl:when>
         <xsl:otherwise>
-          <_>    return 301 https://<xsl:apply-templates select="@domain"/>;</_>
+          <_>      return 301 https://<xsl:apply-templates select="@domain"/>;</_>
         </xsl:otherwise>
       </xsl:choose>
-      <_>  }</_>
-      <_>  server {</_>
-      <_>    listen *:443 ssl;</_>
-      <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
-      <_>    ssl_certificate     /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
-      <_>    ssl_certificate_key /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
-      <_>    location / {</_>
-      <_>      proxy_pass http://guest_<xsl:apply-templates select="../@name"/>;</_>
       <_>    }</_>
+      <xsl:if test="@cert='letsencrypt'">
+        <_>    location /.well-known/acme-challenge {</_>
+        <_>      alias /var/www/letsencrypt/.well-known/acme-challenge;</_>
+        <_>    }</_>
+      </xsl:if>
       <_>  }</_>
+      <xsl:if test="$http_mode!='nossl'">
+        <_>  server {</_>
+        <_>    listen *:443 ssl;</_>
+        <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
+        <xsl:choose>
+          <xsl:when test="@cert='letsencrypt'">
+            <_>    ssl_certificate     /etc/letsencrypt/live/<xsl:apply-templates select="@domain"/>/fullchain.pem;</_>
+            <_>    ssl_certificate_key /etc/letsencrypt/live/<xsl:apply-templates select="@domain"/>/privkey.pem;</_>
+          </xsl:when>
+          <xsl:otherwise>
+            <_>    ssl_certificate     /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
+            <_>    ssl_certificate_key /etc/ssl/private/<xsl:apply-templates select="@domain"/>.pem;</_>
+          </xsl:otherwise>
+        </xsl:choose>
+        <_>    location / {</_>
+        <_>      proxy_pass http://guest_<xsl:apply-templates select="../@name"/>;</_>
+        <_>    }</_>
+        <_>  }</_>
+      </xsl:if>
     </xsl:for-each>
   </xsl:template>
   <xsl:template match="@domain" mode="http">
@@ -212,22 +238,51 @@
     <_/>
     <xsl:call-template name="install-service">
       <xsl:with-param name="action" select="'network'"/>
+      <xsl:with-param name="service" select="'network'"/>
     </xsl:call-template>
+    <_/>
+    <_># Let's Encrypt web directory for ACME challenges</_>
+    <_/>
+    <_>install -o root -g root -m 755 -d /var/www/letsencrypt</_>
+    <_/>
+    <_># HTTP without SSL for Let's Encrypt initial certificates</_>
+    <_/>
+    <xsl:call-template name="install-service">
+      <xsl:with-param name="action" select="'http_nossl'"/>
+      <xsl:with-param name="service" select="'http'"/>
+    </xsl:call-template>
+    <_/>
+    <_># Let's Encrypt initial certificates</_>
+    <_/>
+    <xsl:for-each select="guest/http-ssl[@cert='letsencrypt']">
+      <_>if [ ! -e /etc/letsencrypt/live/<xsl:apply-templates select="@domain"/> ]; then</_>
+      <_>    certbot certonly -n --agree-tos --rsa-key-size 4096 --webroot -t -m <xsl:apply-templates select="../../@letsencrypt-email"/> -w /var/www/letsencrypt -d <xsl:apply-templates select="@domain"/></_>
+      <_>fi</_>
+    </xsl:for-each>
     <_/>
     <_># HTTP</_>
     <_/>
     <xsl:call-template name="install-service">
       <xsl:with-param name="action" select="'http'"/>
+      <xsl:with-param name="service" select="'http'"/>
     </xsl:call-template>
+    <_/>
+    <_># Let's Encrypt cronjob for updating certificates</_>
+    <_/>
+    <_>install -o root -g root -m 600 /dev/stdin /etc/cron.d/letsencrypt &lt;&lt;'EOF'</_>
+    <_>42 * * * *  root  /usr/bin/certbot renew --quiet --post-hook '/usr/bin/svc -t /service/http'</_>
+    <_>EOF</_>
     <xsl:apply-templates select="guest" mode="install"/>
   </xsl:template>
   <xsl:template name="install-service">
     <xsl:param name="action"/>
-    <_>install -o root -g root -m 700 -d /service/<xsl:value-of select="$action"/></_>
-    <_>install -o root -g root -m 700 /dev/stdin /service/<xsl:value-of select="$action"/>/run &lt;&lt;'EOF'</_>
+    <xsl:param name="service"/>
+    <_>install -o root -g root -m 700 -d /service/<xsl:value-of select="$service"/></_>
+    <_>install -o root -g root -m 700 /dev/stdin /service/<xsl:value-of select="$service"/>/run &lt;&lt;'EOF'</_>
     <_>#!/bin/bash</_>
     <_>exec sh &lt;(xsltproc --stringparam action <xsl:value-of select="$action"/> /etc/kvmhosting/config.xml)</_>
     <_>EOF</_>
+    <_>svc -t /service/<xsl:value-of select="$service"/></_>
   </xsl:template>
   <xsl:template match="guest" mode="install">
     <_/>

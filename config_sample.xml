@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="kvmhosting.xsl"?>
 <!-- vim: set expandtab softtabstop=2 autoindent: -->
-<host snat-ip="192.168.0.1" disk-prefix="/dev/vg0/">
+<host snat-ip="192.168.0.1" disk-prefix="/dev/vg0/" letsencrypt-email="info@example.com">
   <guest name="private" net="10.0.1." mem="128M">
   </guest>
   <guest name="tcponly" net="10.0.2." mem="256M">
@@ -24,7 +24,8 @@
     <http domain="www.example.com"/>
     <http domain="images.example.com"/>
     <http-ssl domain="secure.example.com"/>
-    <http-ssl domain="secure2.example.com"/>
+    <http-ssl domain="secure2.example.com" cert="letsencrypt"/>
     <http-ssl domain="secure3.example.com" redirect="unsafe"/>
+    <http-ssl domain="secure4.example.com" cert="letsencrypt" redirect="unsafe"/>
   </guest>
 </host>
