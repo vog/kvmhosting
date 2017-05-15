@@ -93,6 +93,7 @@
     <_>  proxy_set_header X-Forwarded-Host $host;</_>
     <_>  proxy_set_header X-Forwarded-Proto $scheme;</_>
     <_>  proxy_set_header X-Forwarded-HTTPS 1;  # Workaround for mod_rpaf</_>
+    <_>  proxy_set_header X-Forwarded-Port 443;  # Workaround for mod_rpaf</_>
     <_/>
     <_>  server {</_>
     <_>    listen *:80 default;</_>
