@@ -146,7 +146,14 @@
       <_>  }</_>
       <xsl:if test="$http_mode!='nossl'">
         <_>  server {</_>
-        <_>    listen *:443 ssl;</_>
+        <xsl:choose>
+          <xsl:when test="@protocol='http2'">
+            <_>    listen *:443 http2 ssl;</_>
+          </xsl:when>
+          <xsl:otherwise>
+            <_>    listen *:443 ssl;</_>
+          </xsl:otherwise>
+        </xsl:choose>
         <_>    server_name <xsl:apply-templates select="@domain"/>;</_>
         <xsl:choose>
           <xsl:when test="@cert='letsencrypt'">

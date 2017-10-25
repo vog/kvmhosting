@@ -24,7 +24,7 @@
     <http domain="www.example.com"/>
     <http domain="images.example.com"/>
     <http-ssl domain="secure.example.com"/>
-    <http-ssl domain="secure2.example.com" cert="letsencrypt"/>
+    <http-ssl domain="secure2.example.com" cert="letsencrypt" protocol="http2"/>
     <http-ssl domain="secure3.example.com" redirect="unsafe"/>
     <http-ssl domain="secure4.example.com" cert="letsencrypt" redirect="unsafe"/>
   </guest>

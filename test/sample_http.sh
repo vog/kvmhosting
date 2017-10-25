@@ -103,7 +103,7 @@ http {
     }
   }
   server {
-    listen *:443 ssl;
+    listen *:443 http2 ssl;
     server_name secure2.example.com;
     ssl_certificate     /etc/letsencrypt/live/secure2.example.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/secure2.example.com/privkey.pem;
