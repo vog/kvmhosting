@@ -181,7 +181,10 @@
     <_/>
     <_># Enable port forwarding</_>
     <_/>
-    <_>echo 1 >/proc/sys/net/ipv4/ip_forward</_>
+    <_>echo 1 >/proc/sys/net/ipv4/conf/all/forwarding</_>
+    <xsl:if test="guest/@ipv6">
+      <_>echo 1 >/proc/sys/net/ipv6/conf/all/forwarding</_>
+    </xsl:if>
     <_/>
     <_># Configure iptables</_>
     <_/>
@@ -210,6 +213,9 @@
     <_>ip link set tap_<xsl:apply-templates select="@name"/> up</_>
     <_>ip addr flush dev tap_<xsl:apply-templates select="@name"/></_>
     <_>ip addr add <xsl:apply-templates select="@net"/>1/24 dev tap_<xsl:apply-templates select="@name"/></_>
+    <xsl:if test="@ipv6">
+      <_>ip addr add fe80::1 peer <xsl:apply-templates select="@ipv6"/>/128 dev tap_<xsl:apply-templates select="@name"/></_>
+    </xsl:if>
   </xsl:template>
   <xsl:template match="guest[not(tcp)]" mode="network-iptables">
   </xsl:template>

@@ -32,10 +32,12 @@ ip tuntap add dev tap_complex mode tap vnet_hdr 2>/dev/null \
 ip link set tap_complex up
 ip addr flush dev tap_complex
 ip addr add 10.0.5.1/24 dev tap_complex
+ip addr add fe80::1 peer 2001:db8::1/128 dev tap_complex
 
 # Enable port forwarding
 
 echo 1 >/proc/sys/net/ipv4/ip_forward
+echo 1 >/proc/sys/net/ipv6/ip_forward
 
 # Configure iptables
 
