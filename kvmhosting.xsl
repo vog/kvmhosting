@@ -195,7 +195,7 @@
     <_/>
     <_># Configure DHCP server</_>
     <_/>
-    <_>install -o root -g root -m 600 /dev/stdin /run/kvmhosting_dhcpd.conf &lt;&lt;EOF</_>
+    <_>install -o root -g root -m 600 /dev/stdin /etc/dhcp/kvmhosting_dhcpd.conf &lt;&lt;EOF</_>
     <_>option domain-name-servers $(</_>
     <_>    sed -n 's/^nameserver \+\([0-9.]\+\)$/\1/p' /etc/resolv.conf | xargs | sed 's/ /, /g'</_>
     <_>);</_>
@@ -204,7 +204,7 @@
     <_/>
     <_># Run DHCP server</_>
     <_/>
-    <_>exec dhcpd -f -q -cf /run/kvmhosting_dhcpd.conf<xsl:apply-templates select="guest" mode="network-devicenames"/></_>
+    <_>exec dhcpd -f -q -cf /etc/dhcp/kvmhosting_dhcpd.conf<xsl:apply-templates select="guest" mode="network-devicenames"/></_>
   </xsl:template>
   <xsl:template match="guest" mode="network-devices">
     <_/>
